@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -309,6 +310,48 @@ export default {
     english: 'English',
     japanese: '日本語',
     selectLanguage: '言語を選択'
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '予算を選択すると、目標在庫を下回る品目の推奨購入が表示されます。',
+    budget: '予算',
+    plannedSpend: '計画支出',
+    remaining: '残予算',
+    leadTime: 'リードタイム（日）',
+    recommendations: '推奨品目',
+    empty: 'この予算で発注できる品目はありません',
+    placeOrder: '発注する',
+    placing: '発注中...',
+    updating: '更新中...',
+    loadError: '推奨品目の読み込みに失敗しました',
+    orderError: '発注に失敗しました',
+    confirmation: '注文 {orderNumber} を送信しました。納品予定日: {date}',
+    table: {
+      sku: 'SKU',
+      itemName: '品目',
+      category: 'カテゴリ',
+      shortfall: '不足数',
+      quantity: '数量',
+      unitCost: '単価',
+      lineTotal: '小計',
+      leadTime: 'リードタイム（日）'
+    },
+    submitted: {
+      title: '送信済み注文',
+      empty: '送信済みの補充発注はありません',
+      caption: 'これらの注文はフィルターバーの影響を受けません。',
+      loadError: '送信済み注文の読み込みに失敗しました',
+      orderNumber: '注文番号',
+      orderDate: '注文日',
+      items: '品目',
+      total: '合計',
+      leadTime: 'リードタイム（日）',
+      expectedDelivery: '納品予定日',
+      status: 'ステータス',
+      statusSubmitted: '送信済み'
+    }
   },
 
   // Common
