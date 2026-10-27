@@ -74,6 +74,49 @@
           </table>
         </div>
       </div>
+
+      <div class="card submitted-card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('restocking.submitted.title') }} ({{ restockOrders.length }})</h3>
+        </div>
+        <p class="submitted-caption">{{ t('restocking.submitted.caption') }}</p>
+        <div v-if="restockError" class="error">{{ restockError }}</div>
+        <div v-else-if="restockOrders.length === 0" class="submitted-empty">
+          {{ t('restocking.submitted.empty') }}
+        </div>
+        <div v-else class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('restocking.submitted.orderNumber') }}</th>
+                <th>{{ t('restocking.submitted.orderDate') }}</th>
+                <th>{{ t('restocking.submitted.items') }}</th>
+                <th>{{ t('restocking.submitted.total') }}</th>
+                <th>{{ t('restocking.submitted.leadTime') }}</th>
+                <th>{{ t('restocking.submitted.expectedDelivery') }}</th>
+                <th>{{ t('restocking.submitted.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockOrders" :key="order.id">
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td class="restock-items">
+                  <span v-for="item in order.items" :key="item.item_sku" class="restock-item">
+                    {{ item.item_sku }} x {{ item.quantity }}
+                  </span>
+                </td>
+                <td><strong>{{ formatMoney(order.total_cost) }}</strong></td>
+                <td>{{ order.lead_time_days }}</td>
+                <td>{{ formatDate(order.expected_delivery) }}</td>
+                <td>
+                  <span class="badge info">{{ restockStatusLabel(order.status) }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -83,6 +126,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { formatCurrency } from '../utils/currency'
 
 export default {
   name: 'Orders',
@@ -153,10 +197,37 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    // Submitted restocking orders (independent of filters and of the main orders load)
+    const restockOrders = ref([])
+    const restockError = ref(null)
+
+    const loadRestockOrders = async () => {
+      try {
+        restockError.value = null
+        restockOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+        restockError.value = t('restocking.submitted.loadError')
+      }
+    }
+
+    const formatMoney = (amount) => formatCurrency(amount, currentCurrency.value)
+
+    const restockStatusLabel = (status) => {
+      return status === 'Submitted' ? t('restocking.submitted.statusSubmitted') : status
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockOrders()
+    })
 
     return {
       t,
+      restockOrders,
+      restockError,
+      formatMoney,
+      restockStatusLabel,
       loading,
       error,
       orders,
@@ -172,6 +243,30 @@ export default {
 </script>
 
 <style scoped>
+.submitted-card {
+  margin-top: 1.5rem;
+}
+
+.submitted-caption {
+  margin: 0 1.5rem 1rem;
+  font-size: 0.813rem;
+  color: #64748b;
+}
+
+.submitted-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.restock-item {
+  display: inline-block;
+  margin-right: 0.75rem;
+  font-size: 0.813rem;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;
